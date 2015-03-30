@@ -9,7 +9,7 @@ Partials piped in the stream will resolve their parents and push then downstream
 Install with [npm](https://npmjs.org/package/gulp-sass-graph)
 
 ```
-npm install --save-dev maxmx/gulp-sass-graph
+npm install --save-dev gulp-sass-graph-abs
 ```
 
 

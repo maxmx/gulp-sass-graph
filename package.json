@@ -1,9 +1,9 @@
 {
-  "name": "gulp-sass-graph",
-  "version": "1.0.1",
+  "name": "gulp-sass-graph-abs",
+  "version": "1.0.2",
   "description": "Only pass along Sass files that have changed, along with dependencies. ",
   "license": "MIT",
-  "repository": "lox/gulp-sass-graph",
+  "repository": "maxmx/gulp-sass-graph",
   "author": {
     "name": "Lachlan Donald",
     "email": "lachlan@ljd.cc",
@@ -25,7 +25,7 @@
     "modification"
   ],
   "dependencies": {
-  	"lodash": "~2.4.0",
+    "lodash": "~2.4.0",
     "gulp-util": "~2.2.0",
     "through2": "~0.4.0",
     "vinyl": "~0.2.3",
