@@ -144,8 +144,8 @@ module.exports = function (loadPaths) {
 			}
 
 			if (!graph[file.path]) {
-				addToGraph(relativePath, function () {
-					return file.contents.toString('utf8')
+				addToGraph(file.path, function () {
+					return file.contents.toString('utf8');
 				});
 			}
 
