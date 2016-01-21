@@ -13,6 +13,7 @@ module.exports = function (loadPaths) {
 
 	// adds a sass file to a graph of dependencies
 	var addToGraph = function (filepath, contents, parent) {
+		filepath = path.normalize(filepath);
 		var entry = graph[filepath] = graph[filepath] || {
 			path: filepath,
 			imports: [],
@@ -22,7 +23,7 @@ module.exports = function (loadPaths) {
 		var imports = sassImports(contents());
 		var cwd = path.dirname(filepath);
 
-		imports = _.filter(imports, function(imp) { return imp.indexOf('.css') == -1});
+		imports = _.filter(imports, function(imp) { return imp.indexOf('.css') === -1;});
 
 		for (var i in imports) {
 			var resolved = sassResolve(imports[i], loadPaths.concat([cwd]));
@@ -32,14 +33,14 @@ module.exports = function (loadPaths) {
 			if (!_.contains(entry.imports, resolved)) {
 				entry.imports.push(resolved);
 				addToGraph(resolved, function () {
-					return fs.readFileSync((path.extname(resolved) != "" ?
-						resolved : resolved + ".scss"), 'utf8')
+					return fs.readFileSync((path.extname(resolved) !== "" ?
+						resolved : resolved + ".scss"), 'utf8');
 				}, filepath);
 			}
 		}
 
 		// add link back to parent
-		if (parent != null) {
+		if (parent) {
 			entry.importedBy.push(parent);
 		}
 
@@ -48,6 +49,7 @@ module.exports = function (loadPaths) {
 
 	// visits all files that are ancestors of the provided file
 	var visitAncestors = function (filepath, callback, visited) {
+		filepath = path.normalize(filepath);
 		visited = visited || [];
 		var edges = graph[filepath].importedBy;
 
@@ -80,7 +82,7 @@ module.exports = function (loadPaths) {
 					.replace(/'|"|\s/g, '')
 					.split(',');
 				for (var i in multiImports) {
-					results.push(multiImports[i])
+					results.push(multiImports[i]);
 				}
 			} else {
 				results.push(match[2]);
@@ -93,13 +95,13 @@ module.exports = function (loadPaths) {
 	// resolve a relative path to an absolute path
 	var sassResolve = function (path, loadPaths) {
 		for (var p in loadPaths) {
-			var scssPath = loadPaths[p] + "/" + path + ".scss";
+			var scssPath = loadPaths[p] + "/" + path.replace(/\.scss$/, "") + ".scss";
 			if (fs.existsSync(scssPath)) {
 				return scssPath;
 			}
 			var partialPath = scssPath.replace(/\/([^\/]*)$/, '/_$1');
 			if (fs.existsSync(partialPath)) {
-				return partialPath
+				return partialPath;
 			}
 		}
 
@@ -111,9 +113,9 @@ module.exports = function (loadPaths) {
 	_(loadPaths).forEach(function (path) {
 		_(glob.sync(path + "/**/*.scss", {})).forEach(function (file) {
 			if (!addToGraph(file, function () {
-					return fs.readFileSync(file)
+					return fs.readFileSync(file);
 				})) {
-				console.warn("failed to add %s to graph", file)
+				console.warn("failed to add %s to graph", file);
 			}
 		});
 	});
@@ -130,7 +132,8 @@ module.exports = function (loadPaths) {
 			return cb();
 		}
 
-		fs.stat(file.path, function (err, stats) {
+		var filePath= path.normalize(file.path);
+		fs.stat(filePath, function (err, stats) {
 			if (err) {
 				// pass through if it doesn't exist
 				if (err.code === 'ENOENT') {
@@ -143,16 +146,16 @@ module.exports = function (loadPaths) {
 				return cb();
 			}
 
-			if (!graph[file.path]) {
-				addToGraph(relativePath, function () {
-					return file.contents.toString('utf8')
+			if (!graph[filePath]) {
+				addToGraph(filePath, function () {
+					return file.contents.toString('utf8');
 				});
 			}
 
 			this.push(file);
 
 			// push ancestors into the pipeline
-			visitAncestors(file.path, function (node) {
+			visitAncestors(filePath, function (node) {
 				//console.log("processing %s, which depends on %s", node.path, file.path);
 				this.push(new File({
 					cwd: file.cwd,
